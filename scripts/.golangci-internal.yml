@@ -1,0 +1,15 @@
+# See https://github.com/golangci/golangci-lint/blob/master/.golangci.example.yml
+run:
+  tests: false
+
+linters-settings:
+  unused:
+    check-exported: true
+  unparam:
+    check-exported: true
+
+linters:
+  disable-all: true
+  enable:
+  - unused
+  - unparam
