@@ -47,4 +47,18 @@ endif
 
 # Add your custom targets here.
 
+## Run tests
+test: test-unit
+
+```
+
+Then `make` will have these targets:
+```
+Usage
+  test:                 Run tests
+  test-unit:            Run unit tests
+  lint:                 Check with golangci-lint
+  fix-lint:             Apply goimports and gofmt
+  github-actions:       Replace GitHub Actions from template
+
 ```
