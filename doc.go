@@ -7,5 +7,5 @@ package dev
 import (
 	_ "github.com/bool64/dev/makefiles"
 	_ "github.com/bool64/dev/scripts"
-	_ "github.com/bool64/dev/templates/.github/workflows"
+	_ "github.com/bool64/dev/templates/github/workflows"
 )
