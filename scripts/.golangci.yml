@@ -20,10 +20,12 @@ linters-settings:
 linters:
   enable-all: true
   disable:
-  - lll
-  - maligned
-  - gochecknoglobals
-  - gomnd
+    - lll
+    - maligned
+    - gochecknoglobals
+    - gomnd
+    - wrapcheck
+    - exhaustivestruct
 
 issues:
   exclude-use-default: false
