@@ -10,10 +10,6 @@ fi
 build_user="$USER"
 build_date=$(date +%FT%T%Z)
 
-#if [[ -d vendor ]] && [[ ! -e go.mod ]]; then
-#    version_pkg="$MODULE_NAME"/vendor/github.com/bool64/dev-go/version
-#else
-    version_pkg=github.com/bool64/dev-go/version
-#fi
+version_pkg=github.com/bool64/dev-go/version
 
 echo -X "$version_pkg".version="$VERSION" -X "$version_pkg".branch="$branch" -X "$version_pkg".revision="$revision" -X "$version_pkg".buildUser="$build_user" -X "$version_pkg".buildDate="$build_date"
