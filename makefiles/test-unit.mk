@@ -1,5 +1,5 @@
 GO ?= go
-UNIT_TEST_COUNT ?= 5
+UNIT_TEST_COUNT ?= 2
 
 ## Run unit tests
 test-unit:
