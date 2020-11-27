@@ -45,4 +45,4 @@ jobs:
           # Using base sha for PR or new commit hash for master/main push in benchmark result key.
           key: ${{ runner.os }}-bench-${{ (github.event.pull_request.base.sha != github.event.after) && github.event.pull_request.base.sha || github.event.after }}
       - name: Benchmark
-        run: REF_NAME=${GITHUB_REF##*/} make bench && ls -la bench-*.txt
+        run: REF_NAME=${GITHUB_REF##*/} make bench
