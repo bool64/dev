@@ -22,7 +22,8 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Checkout code
         uses: actions/checkout@v2
-      - uses: actions/cache@v2
+      - name: Restore vendor
+        uses: actions/cache@v2
         with:
           path: |
             vendor
@@ -30,11 +31,13 @@ jobs:
       - name: Populate dependencies
         run: |
           (test -d vendor && echo vendor found) || (go mod vendor)
-      - uses: actions/cache@v2
+      - name: Restore benchstat
+        uses: actions/cache@v2
         with:
           path: ~/go/bin/benchstat
           key: ${{ runner.os }}-benchstat
-      - uses: actions/cache@v2
+      - name: Restore base benchmark result
+        uses: actions/cache@v2
         with:
           path: |
             bench-master.txt
