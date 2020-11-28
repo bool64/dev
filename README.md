@@ -2,7 +2,7 @@
 
 ## Usage
 
-Add a test file (e.g. `make_test.go`) to your module with unused import.
+Add a test file (e.g. `dev_test.go`) to your module with unused import.
 ```go
 package mymodule_test
 
@@ -11,7 +11,7 @@ import _ "github.com/bool64/dev" // Include development helpers to project.
 
 Add `Makefile` to your module with includes standard targets.
 ```Makefile
-GOLANGCI_LINT_VERSION := "v1.31.0" # Optional.
+GOLANGCI_LINT_VERSION := "v1.32.2" # Optional.
 
 # The head of Makefile determines location of dev-go to include standard targets.
 GO ?= go
@@ -43,6 +43,7 @@ endif
 -include $(DEVGO_PATH)/makefiles/main.mk
 -include $(DEVGO_PATH)/makefiles/lint.mk
 -include $(DEVGO_PATH)/makefiles/test-unit.mk
+-include $(DEVGO_PATH)/makefiles/bench.mk
 -include $(DEVGO_PATH)/makefiles/github-actions.mk
 
 # Add your custom targets here.
@@ -57,8 +58,10 @@ Then `make` will have these targets:
 Usage
   test:                 Run tests
   test-unit:            Run unit tests
+  test-unit-multi:      Run unit tests multiple times
   lint:                 Check with golangci-lint
   fix-lint:             Apply goimports and gofmt
+  bench:                Run benchmark, iterations count controlled by BENCH_COUNT, default 5.
   github-actions:       Replace GitHub Actions from template
 
 ```
