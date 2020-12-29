@@ -25,6 +25,8 @@ linters:
     - gochecknoglobals
     - gomnd
     - wrapcheck
+    - paralleltest
+    - forbidigo
     - exhaustivestruct
 
 issues:

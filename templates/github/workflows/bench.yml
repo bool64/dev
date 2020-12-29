@@ -27,10 +27,10 @@ jobs:
         with:
           path: |
             vendor
-          key: ${{ runner.os }}-go-vendor-${{ hashFiles('**/go.mod') }}
+          key: ${{ runner.os }}-go${{ matrix.go-version }}-vendor-${{ hashFiles('**/go.mod') }}
       - name: Populate dependencies
         run: |
-          (test -d vendor && echo vendor found) || (go mod vendor)
+          (test -d vendor && echo vendor found) || (go mod vendor && du -sh vendor && du -sh ~/go/pkg/mod)
       - name: Restore benchstat
         uses: actions/cache@v2
         with:
@@ -45,4 +45,25 @@ jobs:
           # Use base sha for PR or new commit hash for master/main push in benchmark result key.
           key: ${{ runner.os }}-bench-${{ (github.event.pull_request.base.sha != github.event.after) && github.event.pull_request.base.sha || github.event.after }}
       - name: Benchmark
-        run: REF_NAME=${GITHUB_REF##*/} make bench
+        id: bench
+        run: |
+          export REF_NAME=${GITHUB_REF##*/}
+          BENCH_COUNT=5 make bench-run bench-stat
+          OUTPUT=$(make bench-stat)
+          OUTPUT="${OUTPUT//'%'/'%25'}"
+          OUTPUT="${OUTPUT//$'\n'/'%0A'}"
+          OUTPUT="${OUTPUT//$'\r'/'%0D'}"
+          echo "::set-output name=result::$OUTPUT"
+      - name: Comment Benchmark Result
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          header: bench
+          message: |
+            ### Benchmark Result
+            <details><summary>Benchmark diff with base branch</summary>
+
+            ```
+            ${{ steps.bench.outputs.result }}
+            ```
+            </details>
