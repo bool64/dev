@@ -1,8 +1,9 @@
 # Go development helpers
 
-## Usage
+## Installation
 
 Add a test file (e.g. `dev_test.go`) to your module with unused import.
+
 ```go
 package mymodule_test
 
@@ -10,6 +11,7 @@ import _ "github.com/bool64/dev" // Include development helpers to project.
 ```
 
 Add `Makefile` to your module with includes standard targets.
+
 ```Makefile
 GOLANGCI_LINT_VERSION := "v1.35.2" # Optional.
 
@@ -54,6 +56,7 @@ test: test-unit
 ```
 
 Then `make` will have these targets:
+
 ```
 Usage
   test:                 Run tests
@@ -65,3 +68,9 @@ Usage
   github-actions:       Replace GitHub Actions from template
 
 ```
+
+## Build Versioning
+
+You can include `$(DEVGO_PATH)/makefiles/build.mk` to add automated versioning of build artifacts. Make will
+configure `ldflags` to set up [version info](./version/info.go), then you can access it in runtime with `version.Info()`
+or expose with [HTTP handler](./version/handler.go). Version information also includes versions of dependencies.

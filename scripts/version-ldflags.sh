@@ -10,6 +10,6 @@ fi
 build_user="$USER"
 build_date=$(date +%FT%T%Z)
 
-version_pkg=github.com/bool64/dev-go/version
+version_pkg=github.com/bool64/dev/version
 
 echo -X "$version_pkg".version="$VERSION" -X "$version_pkg".branch="$branch" -X "$version_pkg".revision="$revision" -X "$version_pkg".buildUser="$build_user" -X "$version_pkg".buildDate="$build_date"
