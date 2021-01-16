@@ -16,6 +16,6 @@ build:
 ## Build and run binary
 run:
 	@echo "Running binary"
-	@$(GO) run -ldflags "$(BUILD_LDFLAGS)$(shell bash $(DEVGO_SCRIPTS)/version-ldflags.sh)" $(BUILD_PKG)
+	@$(GO) run -ldflags "$(shell bash $(DEVGO_SCRIPTS)/version-ldflags.sh)" $(BUILD_PKG)
 
 .PHONY: build-linux build run
