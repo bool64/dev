@@ -1,7 +1,13 @@
 GO ?= go
-BUILD_LDFLAGS ?= "" # Override in app Makefile to add custom ldflags, example BUILD_LDFLAGS="-s -w"
-BUILD_PKG ?= . # Override in app Makefile to control build target, example BUILD_PKG=./cmd/my-app
-BUILD_DIR ?= ./bin # Override in app Makefile to control build artifact destination.
+
+# Override in app Makefile to add custom ldflags, example BUILD_LDFLAGS="-s -w"
+BUILD_LDFLAGS ?= ""
+
+# Override in app Makefile to control build target, example BUILD_PKG=./cmd/my-app
+BUILD_PKG ?= .
+
+# Override in app Makefile to control build artifact destination.
+BUILD_DIR ?= ./bin
 
 ## Build Linux binary
 build-linux:
