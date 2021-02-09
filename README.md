@@ -13,7 +13,7 @@ import _ "github.com/bool64/dev" // Include development helpers to project.
 Add `Makefile` to your module with includes standard targets.
 
 ```Makefile
-GOLANGCI_LINT_VERSION := "v1.35.2" # Optional.
+GOLANGCI_LINT_VERSION := "v1.36.0" # Optional.
 
 # The head of Makefile determines location of dev-go to include standard targets.
 GO ?= go
