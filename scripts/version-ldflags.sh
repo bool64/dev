@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 
+branch=$GITHUB_HEAD_REF
+[[ -z "$branch" ]] && branch=${GITHUB_REF#refs/heads/}
+
 # skip branch/revision with missing git repo.
 if [[ -d .git ]] || git rev-parse --git-dir > /dev/null 2>&1; then
-    branch=$(git symbolic-ref HEAD 2>/dev/null)
+    [[ -z "$branch" ]] && branch=$(git symbolic-ref HEAD 2>/dev/null)
     [[ -z "$VERSION" ]] && VERSION=$(git symbolic-ref -q --short HEAD || git describe --tags --exact-match)
+    [[ -z "$VERSION" ]] && VERSION=branch
     revision=$(git log -1 --pretty=format:"%H" 2>/dev/null)
 fi
 
