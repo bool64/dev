@@ -8,7 +8,7 @@ bench: bench-run bench-stat
 
 ## Run benchmark, iterations count controlled by BENCH_COUNT, default 5.
 bench-run:
-	@$(GO) test -bench=. -count=$(BENCH_COUNT) -run=^a  ./... >bench-$(REF_NAME).txt
+	@$(GO) test -bench=. -count=$(BENCH_COUNT) -run=^a  ./... >bench-$(REF_NAME).txt || (cat bench-$(REF_NAME).txt && exit 1)
 
 ## Show result of benchmark.
 bench-stat:
