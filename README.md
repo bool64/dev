@@ -2,6 +2,15 @@
 
 ## Installation
 
+### Automatic
+
+Run this command in your repo root.
+```
+curl https://raw.githubusercontent.com/bool64/dev/master/makefiles/base.mk -sLo Makefile && make reset-ci
+```
+
+### Manual
+
 Add a test file (e.g. `dev_test.go`) to your module with unused import.
 
 ```go
@@ -13,7 +22,7 @@ import _ "github.com/bool64/dev" // Include development helpers to project.
 Add `Makefile` to your module with includes standard targets.
 
 ```Makefile
-GOLANGCI_LINT_VERSION := "v1.37.1" # Optional.
+#GOLANGCI_LINT_VERSION := "v1.37.1" # Optional configuration to pinpoint golangci-lint version.
 
 # The head of Makefile determines location of dev-go to include standard targets.
 GO ?= go
@@ -24,7 +33,7 @@ ifneq "$(GOFLAGS)" ""
 endif
 
 ifneq "$(wildcard ./vendor )" ""
-  $(info >> using vendor)
+  $(info Using vendor)
   modVendor =  -mod=vendor
   ifeq (,$(findstring -mod,$(GOFLAGS)))
       export GOFLAGS := ${GOFLAGS} ${modVendor}
@@ -46,7 +55,7 @@ endif
 -include $(DEVGO_PATH)/makefiles/lint.mk
 -include $(DEVGO_PATH)/makefiles/test-unit.mk
 -include $(DEVGO_PATH)/makefiles/bench.mk
--include $(DEVGO_PATH)/makefiles/github-actions.mk
+-include $(DEVGO_PATH)/makefiles/reset-ci.mk
 
 # Add your custom targets here.
 
