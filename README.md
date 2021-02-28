@@ -2,6 +2,15 @@
 
 ## Installation
 
+### Automatic
+
+Run this command in your repo root.
+```
+curl https://raw.githubusercontent.com/bool64/dev/reset-ci/makefiles/base.mk -sLo Makefile && make reset-ci
+```
+
+### Manual
+
 Add a test file (e.g. `dev_test.go`) to your module with unused import.
 
 ```go
