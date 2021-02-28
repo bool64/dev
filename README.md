@@ -6,7 +6,7 @@
 
 Run this command in your repo root.
 ```
-curl https://raw.githubusercontent.com/bool64/dev/reset-ci/makefiles/base.mk -sLo Makefile && make reset-ci
+curl https://raw.githubusercontent.com/bool64/dev/master/makefiles/base.mk -sLo Makefile && make reset-ci
 ```
 
 ### Manual
