@@ -28,6 +28,8 @@ linters:
     - paralleltest
     - forbidigo
     - exhaustivestruct
+    - interfacer
+    - forcetypeassert
 
 issues:
   exclude-use-default: false
