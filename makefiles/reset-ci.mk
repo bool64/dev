@@ -5,6 +5,8 @@ GO ?= go
 ## Reset CI files from bool64/dev templates, make sure to review changes before committing.
 reset-ci: github-actions
 	@cp $(DEVGO_PATH)/makefiles/base.mk Makefile; chmod +w Makefile; git add Makefile
+	@(test -z "$(BENCH_COUNT)" && grep -v makefiles/bench.mk Makefile > Makefile || echo "keeping bench.mk")
+	@(test -z "$(RELEASE_TARGETS)" && grep -v makefiles/release-assets.mk Makefile > Makefile || echo "keeping release-assets.mk")
 	@cp $(DEVGO_PATH)/scripts/.golangci.yml .golangci.yml; chmod +w .golangci.yml; git add .golangci.yml
 	@cp $(DEVGO_PATH)/scripts/.gitignore .gitignore; chmod +w .gitignore; git add .gitignore
 	@echo "package $(shell go list -f '{{.Name}}')_test" > dev_test.go

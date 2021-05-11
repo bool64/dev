@@ -11,6 +11,8 @@ BUILD_DIR ?= ./bin
 
 export CGO_ENABLED ?= 0
 
+RELEASE_TARGETS ?= darwin/amd64 darwin/arm64 linux/amd64 linux/arm64 linux/arm windows/amd64
+
 ## Build and compress binaries for release assets.
 release-assets:
 	@echo "Building Darwin AMD64 binary"
@@ -26,4 +28,4 @@ release-assets:
 	@echo "Building Windows AMD64 binary"
 	@GOOS=windows GOARCH=amd64 $(GO) build -ldflags "$(shell bash $(DEVGO_SCRIPTS)/version-ldflags.sh && echo $(BUILD_LDFLAGS))" -o $(BUILD_DIR)/ $(BUILD_PKG) && cd $(BUILD_DIR) && zip -9 -j ../windows_amd64.zip * && rm *
 
-.PHONY: build-release
+.PHONY: release-assets
