@@ -1,4 +1,5 @@
-name: integration-unit
+# This script is provided by github.com/bool64/dev.
+name: test-integration
 on:
   push:
     branches:
@@ -38,9 +39,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            unit-base.txt
+            integration-base.txt
           # Use base sha for PR or new commit hash for master/main push in test result key.
-          key: ${{ runner.os }}-unit-test-coverage-${{ (github.event.pull_request.base.sha != github.event.after) && github.event.pull_request.base.sha || github.event.after }}
+          key: ${{ runner.os }}-integration-test-coverage-${{ (github.event.pull_request.base.sha != github.event.after) && github.event.pull_request.base.sha || github.event.after }}
       - name: Checkout base code
         if: matrix.go-version == '1.16.x' && env.RUN_BASE_COVERAGE == 'on' && steps.benchmark-base.outputs.cache-hit != 'true' && github.event.pull_request.base.sha != ''
         uses: actions/checkout@v2
@@ -63,7 +64,7 @@ jobs:
           OUTPUT="${OUTPUT//'%'/'%25'}"
           OUTPUT="${OUTPUT//$'\n'/'%0A'}"
           OUTPUT="${OUTPUT//$'\r'/'%0D'}"
-          TOTAL=$(grep 'total:' unit.txt)
+          TOTAL=$(grep 'total:' integration.txt)
           echo "::set-output name=diff::$OUTPUT"
           echo "::set-output name=total::$TOTAL"
       - name: Store base coverage
@@ -74,7 +75,7 @@ jobs:
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          header: unit-test
+          header: integration-test
           message: |
             ### Unit Test Coverage
             ${{ steps.test.outputs.total }}
