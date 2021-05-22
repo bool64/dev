@@ -77,7 +77,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           header: integration-test
           message: |
-            ### Unit Test Coverage
+            ### Integration Test Coverage
             ${{ steps.test.outputs.total }}
             <details><summary>Coverage diff with base branch</summary>
 
