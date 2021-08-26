@@ -8,7 +8,7 @@ bench: bench-run bench-stat-diff bench-stat
 
 ## Run benchmark, iterations count controlled by BENCH_COUNT, default 5.
 bench-run:
-	@$(GO) test -bench=. -count=$(BENCH_COUNT) -run=^a  ./... | tee bench-$(REF_NAME).txt || (cat bench-$(REF_NAME).txt && exit 1)
+	@set -o pipefail && $(GO) test -bench=. -count=$(BENCH_COUNT) -run=^a  ./... | tee bench-$(REF_NAME).txt
 
 ## Show benchmark comparison with base branch.
 bench-stat-diff:
