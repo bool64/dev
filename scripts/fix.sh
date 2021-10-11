@@ -12,7 +12,7 @@ SOURCES_TO_LINT=$(find . -name '*.go' -not -path "./vendor/*")
 # gogroup enforces import grouping: https://github.com/vasi-stripe/gogroup
 if ! command -v gogroup > /dev/null ; then \
     echo "Installing gogroup..."; \
-    bash -c "cd /tmp;GO111MODULE=on $GO get github.com/vasi-stripe/gogroup/cmd/gogroup@v0.0.0-20200806161525-b5d7f67a97b5";
+    $GO install github.com/vasi-stripe/gogroup/cmd/gogroup@v0.0.0-20200806161525-b5d7f67a97b5;
 fi
 
 gogroup -order std,other -rewrite ${SOURCES_TO_LINT}
@@ -21,8 +21,8 @@ gogroup -order std,other -rewrite ${SOURCES_TO_LINT}
 # gofumpt is a drop-in replacement for gofmt with stricter formatting: https://github.com/mvdan/gofumpt
 if ! command -v gofumpt > /dev/null ; then \
     echo "Installing gofumpt..."; \
-    bash -c "cd /tmp;GO111MODULE=on $GO get mvdan.cc/gofumpt@v0.0.0-20200802201014-ab5a8192947d";
+    $GO install mvdan.cc/gofumpt@4d8e76d698e7e061266253df920ef5b28d8f8f13;
 fi
 
 # simplify code
-gofumpt -s -w ${SOURCES_TO_LINT} &>/dev/null
+gofumpt -w ${SOURCES_TO_LINT}
