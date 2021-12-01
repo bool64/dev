@@ -13,12 +13,12 @@ bench-run:
 
 ## Show benchmark comparison with base branch.
 bench-stat-diff:
-	@test -s $(GOPATH)/bin/benchstat || GO111MODULE=off GOFLAGS= GOBIN=$(GOPATH)/bin $(GO) get -u golang.org/x/perf/cmd/benchstat
-	@test -e bench-$(MASTER_BRANCH).txt && benchstat bench-$(MASTER_BRANCH).txt bench-$(REF_NAME).txt
+	@test -s $(GOPATH)/bin/benchstat || GO111MODULE=off GOFLAGS= GOBIN=$(GOPATH)/bin $(GO) install golang.org/x/perf/cmd/benchstat@latest
+	@test ! -e bench-$(MASTER_BRANCH).txt || benchstat bench-$(MASTER_BRANCH).txt bench-$(REF_NAME).txt
 
 ## Show result of benchmark.
 bench-stat:
-	@test -s $(GOPATH)/bin/benchstat || GO111MODULE=off GOFLAGS= GOBIN=$(GOPATH)/bin $(GO) get -u golang.org/x/perf/cmd/benchstat
+	@test -s $(GOPATH)/bin/benchstat || GO111MODULE=off GOFLAGS= GOBIN=$(GOPATH)/bin $(GO) install golang.org/x/perf/cmd/benchstat@latest
 	@$(GOPATH)/bin/benchstat bench-$(REF_NAME).txt
 
 .PHONY: bench bench-run bench-stat-diff bench-stat
