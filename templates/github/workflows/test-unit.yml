@@ -59,16 +59,19 @@ jobs:
           make test-unit
           go tool cover -func=./unit.coverprofile | sed -e 's/.go:[0-9]*:\t/.go\t/g' | sed -e 's/\t\t*/\t/g'  > unit.txt
           OUTPUT=$(test -e unit-base.txt && (diff unit-base.txt unit.txt || exit 0) || cat unit.txt)
+          echo "${OUTPUT}"
           OUTPUT="${OUTPUT//'%'/'%25'}"
           OUTPUT="${OUTPUT//$'\n'/'%0A'}"
           OUTPUT="${OUTPUT//$'\r'/'%0D'}"
           TOTAL=$(grep 'total:' unit.txt)
+          echo "${TOTAL}"
           echo "::set-output name=diff::$OUTPUT"
           echo "::set-output name=total::$TOTAL"
       - name: Store base coverage
         if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
         run: cp unit.txt unit-base.txt
       - name: Comment Test Coverage
+        continue-on-error: true
         if: matrix.go-version == '1.17.x'
         uses: marocchino/sticky-pull-request-comment@v2
         with:

@@ -61,16 +61,19 @@ jobs:
           make test-integration
           go tool cover -func=./integration.coverprofile | sed -e 's/.go:[0-9]*:\t/.go\t/g' | sed -e 's/\t\t*/\t/g'  > integration.txt
           OUTPUT=$(test -e integration-base.txt && (diff integration-base.txt integration.txt || exit 0) || cat integration.txt)
+          echo "${OUTPUT}"
           OUTPUT="${OUTPUT//'%'/'%25'}"
           OUTPUT="${OUTPUT//$'\n'/'%0A'}"
           OUTPUT="${OUTPUT//$'\r'/'%0D'}"
           TOTAL=$(grep 'total:' integration.txt)
+          echo "${TOTAL}"
           echo "::set-output name=diff::$OUTPUT"
           echo "::set-output name=total::$TOTAL"
       - name: Store base coverage
         if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
         run: cp integration.txt integration-base.txt
       - name: Comment Test Coverage
+        continue-on-error: true
         if: matrix.go-version == '1.17.x'
         uses: marocchino/sticky-pull-request-comment@v2
         with:

@@ -3,6 +3,7 @@ GO ?= go
 # Override in app Makefile to add custom ldflags, example BUILD_LDFLAGS="-s -w"
 BUILD_LDFLAGS ?= ""
 INTEGRATION_TEST_TARGET ?= -coverpkg ./internal/... integration_test.go
+INTEGRATION_DOCKER_COMPOSE ?= ./docker-compose.integration-test.yml
 
 ## Run integration tests
 test-integration:
@@ -12,10 +13,10 @@ test-integration:
 
 ## Start dependencies for integration tests or local dev via docker-compose up
 start-deps:
-	@test ! -f ./docker-compose.integration-test.yml || docker-compose -p "$(shell basename $$PWD)" -f ./docker-compose.integration-test.yml up -d
+	@test ! -f $(INTEGRATION_DOCKER_COMPOSE) || docker-compose -p "$(shell basename $$PWD)" -f $(INTEGRATION_DOCKER_COMPOSE) up -d
 
 ## Stop dependencies for integration tests or local dev via docker-compose down
 stop-deps:
-	@test ! -f ./docker-compose.integration-test.yml || docker-compose -p "$(shell basename $$PWD)" -f ./docker-compose.integration-test.yml down
+	@test ! -f $(INTEGRATION_DOCKER_COMPOSE) || docker-compose -p "$(shell basename $$PWD)" -f $(INTEGRATION_DOCKER_COMPOSE) down
 
 .PHONY: test-integration start-deps stop-deps
