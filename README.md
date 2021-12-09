@@ -1,5 +1,9 @@
 # Go development helpers
 
+This library provides scripts and workflows to automate common routines with modular `Makefile` and GitHub Actions.
+
+See [blog post](https://dev.to/vearutop/peace-of-mind-with-github-actions-for-a-project-in-go-9d4) for more information.
+
 ## Installation
 
 ### Automatic
