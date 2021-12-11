@@ -9,6 +9,7 @@ on:
 env:
   GO111MODULE: "on"
   RUN_BASE_COVERAGE: "on"  # Runs test for PR base in case base test coverage is missing.
+  DOCKER_COMPOSE_FILE: "./docker-compose.yml"
 jobs:
   test:
     strategy:
@@ -49,7 +50,7 @@ jobs:
           ref: ${{ github.event.pull_request.base.sha }}
           path: __base
       - name: Docker Compose
-        run: (test -f ./dev/docker-compose.integration-test.yml && docker-compose -f ./dev/docker-compose.integration-test.yml up -d && docker ps && docker-compose -f ./dev/docker-compose.integration-test.yml logs) || echo "::warning ::Missing ./dev/docker-compose.integration-test.yml file"
+        run: (test -f ${{ env.DOCKER_COMPOSE_FILE }} && docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} up -d && docker ps && docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} logs) || echo "::warning ::Missing ${{ env.DOCKER_COMPOSE_FILE }} file"
       - name: Run test for base code
         if: matrix.go-version == '1.17.x' && env.RUN_BASE_COVERAGE == 'on' && steps.benchmark-base.outputs.cache-hit != 'true' && github.event.pull_request.base.sha != ''
         run: |

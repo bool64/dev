@@ -3,7 +3,7 @@ GO ?= go
 # Override in app Makefile to add custom ldflags, example BUILD_LDFLAGS="-s -w"
 BUILD_LDFLAGS ?= ""
 INTEGRATION_TEST_TARGET ?= -coverpkg ./internal/... integration_test.go
-INTEGRATION_DOCKER_COMPOSE ?= ./docker-compose.integration-test.yml
+INTEGRATION_DOCKER_COMPOSE ?= ./docker-compose.yml
 
 ## Run integration tests
 test-integration:
