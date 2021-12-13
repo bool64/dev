@@ -12,15 +12,12 @@ env:
   DOCKER_COMPOSE_FILE: "./docker-compose.yml"
 jobs:
   test:
-    strategy:
-      matrix:
-        go-version: [ 1.17.x ]
     runs-on: ubuntu-latest
     steps:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: 1.17.x
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Go cache
@@ -36,7 +33,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-cache
       - name: Restore base test coverage
-        if: matrix.go-version == '1.17.x'
+        id: base-coverage
         uses: actions/cache@v2
         with:
           path: |
@@ -44,7 +41,7 @@ jobs:
           # Use base sha for PR or new commit hash for master/main push in test result key.
           key: ${{ runner.os }}-integration-test-coverage-${{ (github.event.pull_request.base.sha != github.event.after) && github.event.pull_request.base.sha || github.event.after }}
       - name: Checkout base code
-        if: matrix.go-version == '1.17.x' && env.RUN_BASE_COVERAGE == 'on' && steps.benchmark-base.outputs.cache-hit != 'true' && github.event.pull_request.base.sha != ''
+        if: matrix.go-version == '1.17.x' && env.RUN_BASE_COVERAGE == 'on' && steps.base-coverage.outputs.cache-hit != 'true' && github.event.pull_request.base.sha != ''
         uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.base.sha }}
@@ -52,7 +49,7 @@ jobs:
       - name: Docker Compose
         run: (test -f ${{ env.DOCKER_COMPOSE_FILE }} && docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} up -d && docker ps && docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} logs) || echo "::warning ::Missing ${{ env.DOCKER_COMPOSE_FILE }} file"
       - name: Run test for base code
-        if: matrix.go-version == '1.17.x' && env.RUN_BASE_COVERAGE == 'on' && steps.benchmark-base.outputs.cache-hit != 'true' && github.event.pull_request.base.sha != ''
+        if: env.RUN_BASE_COVERAGE == 'on' && steps.base-coverage.outputs.cache-hit != 'true' && github.event.pull_request.base.sha != ''
         run: |
           cd __base
           make | grep test-integration && (make test-integration && go tool cover -func=./integration.coverprofile | sed -e 's/.go:[0-9]*:\t/.go\t/g' | sed -e 's/\t\t*/\t/g'  > ../integration-base.txt) || echo "No test-integration in base"
@@ -63,9 +60,7 @@ jobs:
           go tool cover -func=./integration.coverprofile | sed -e 's/.go:[0-9]*:\t/.go\t/g' | sed -e 's/\t\t*/\t/g'  > integration.txt
           OUTPUT=$(test -e integration-base.txt && (diff integration-base.txt integration.txt || exit 0) || cat integration.txt)
           echo "${OUTPUT}"
-          OUTPUT="${OUTPUT//'%'/'%25'}"
-          OUTPUT="${OUTPUT//$'\n'/'%0A'}"
-          OUTPUT="${OUTPUT//$'\r'/'%0D'}"
+          OUTPUT="${OUTPUT//$'\n'/%0A}"
           TOTAL=$(grep 'total:' integration.txt)
           echo "${TOTAL}"
           echo "::set-output name=diff::$OUTPUT"
@@ -75,7 +70,6 @@ jobs:
         run: cp integration.txt integration-base.txt
       - name: Comment Test Coverage
         continue-on-error: true
-        if: matrix.go-version == '1.17.x'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -91,7 +85,6 @@ jobs:
             </details>
 
       - name: Upload code coverage
-        if: matrix.go-version == '1.17.x'
         uses: codecov/codecov-action@v1
         with:
           file: ./integration.coverprofile
