@@ -21,9 +21,7 @@ jobs:
           curl -sLO https://github.com/vearutop/sccdiff/releases/download/v1.0.1/linux_amd64.tar.gz && tar xf linux_amd64.tar.gz
           OUTPUT=$(cd pr && ../sccdiff -basedir ../base)
           echo "${OUTPUT}"
-          OUTPUT="${OUTPUT//'%'/'%25'}"
-          OUTPUT="${OUTPUT//$'\n'/'%0A'}"
-          OUTPUT="${OUTPUT//$'\r'/'%0D'}"
+          OUTPUT="${OUTPUT//$'\n'/%0A}"
           echo "::set-output name=diff::$OUTPUT"
 
       - name: Comment Code Lines
