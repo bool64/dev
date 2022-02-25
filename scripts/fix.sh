@@ -21,7 +21,7 @@ gogroup -order std,other -rewrite ${SOURCES_TO_LINT}
 # gofumpt is a drop-in replacement for gofmt with stricter formatting: https://github.com/mvdan/gofumpt
 if ! command -v gofumpt > /dev/null ; then \
     echo "Installing gofumpt..."; \
-    $GO install mvdan.cc/gofumpt@4d8e76d698e7e061266253df920ef5b28d8f8f13;
+    $GO install mvdan.cc/gofumpt@v0.3.0;
 fi
 
 # simplify code
