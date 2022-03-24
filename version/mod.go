@@ -1,3 +1,4 @@
+//go:build go1.12
 // +build go1.12
 
 package version
@@ -10,7 +11,7 @@ import (
 //nolint:gochecknoinits
 func init() {
 	if info, available := debug.ReadBuildInfo(); available {
-		if version == "dev" && info.Main.Version != "(devel)" {
+		if version == "dev" && info.Main.Version != "(devel)" && info.Main.Version != "" {
 			version = info.Main.Version
 			revision = fmt.Sprintf("(unknown, mod sum: %q)", info.Main.Sum)
 			buildUser = "(unknown)"
