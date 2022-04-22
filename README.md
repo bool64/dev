@@ -10,7 +10,7 @@ See [blog post](https://dev.to/vearutop/peace-of-mind-with-github-actions-for-a-
 
 Run this command in your repo root.
 ```
-curl https://raw.githubusercontent.com/bool64/dev/master/makefiles/base.mk -sLo Makefile && printf "package $(go list -f '{{.Name}}' || echo 'mypackage')_test\n\nimport _ \"github.com/bool64/dev\" // Include CI/Dev scripts to project.\n" > dev_test.go && make reset-ci
+curl https://raw.githubusercontent.com/bool64/dev/master/makefiles/base.mk -sLo Makefile && printf "//go:build ignore\n// +build ignore\n\npackage $(go list -f '{{.Name}}' || echo 'mypackage')_test\n\nimport _ \"github.com/bool64/dev\" // Include CI/Dev scripts to project.\n" > dev_test.go && make reset-ci
 ```
 
 ### Manual
@@ -18,6 +18,9 @@ curl https://raw.githubusercontent.com/bool64/dev/master/makefiles/base.mk -sLo 
 Add a test file (e.g. `dev_test.go`) to your module with unused import.
 
 ```go
+//go:build ignore
+// +build ignore
+
 package mymodule_test
 
 import _ "github.com/bool64/dev" // Include development helpers to project. 
