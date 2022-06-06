@@ -14,7 +14,6 @@ concurrency:
 
 env:
   GO111MODULE: "on"
-  RUN_BASE_COVERAGE: "on"  # Runs test for PR base in case base test coverage is missing.
   DOCKER_COMPOSE_FILE: ./docker-compose.yml
   GO_VERSION: 1.18.x
 jobs:
@@ -49,43 +48,29 @@ jobs:
           key: ${{ runner.os }}-go-cache-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-cache
-      - name: Restore base test coverage
-        id: base-coverage
-        uses: actions/cache@v2
-        with:
-          path: |
-            integration-base.txt
-          # Use base sha for PR or new commit hash for master/main push in test result key.
-          key: ${{ runner.os }}-integration-test-coverage-${{ (github.event.pull_request.base.sha != github.event.after) && github.event.pull_request.base.sha || github.event.after }}
-      - name: Checkout base code
-        if: env.RUN_BASE_COVERAGE == 'on' && steps.base-coverage.outputs.cache-hit != 'true' && github.event.pull_request.base.sha != ''
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.pull_request.base.sha }}
-          path: __base
       - name: Docker Compose
         run: (test -f ${{ env.DOCKER_COMPOSE_FILE }} && docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} up -d && docker ps && docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} logs) || echo "::warning ::Missing ${{ env.DOCKER_COMPOSE_FILE }} file"
-      - name: Run test for base code
-        if: env.RUN_BASE_COVERAGE == 'on' && steps.base-coverage.outputs.cache-hit != 'true' && github.event.pull_request.base.sha != ''
-        run: |
-          cd __base
-          make | grep test-integration && (make test-integration && go tool cover -func=./integration.coverprofile | sed -e 's/.go:[0-9]*:\t/.go\t/g' | sed -e 's/\t\t*/\t/g'  > ../integration-base.txt) || echo "No test-integration in base"
       - name: Test
         id: test
         run: |
           make test-integration
           go tool cover -func=./integration.coverprofile | sed -e 's/.go:[0-9]*:\t/.go\t/g' | sed -e 's/\t\t*/\t/g'  > integration.txt
-          OUTPUT=$(test -e integration-base.txt && (diff integration-base.txt integration.txt || exit 0) || cat integration.txt)
-          echo "${OUTPUT}"
-          OUTPUT="${OUTPUT//$'\n'/%0A}"
           TOTAL=$(grep 'total:' integration.txt)
           echo "${TOTAL}"
-          echo "::set-output name=diff::$OUTPUT"
           echo "::set-output name=total::$TOTAL"
-      - name: Store base coverage
-        if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
-        run: cp integration.txt integration-base.txt
+      - name: Annotate missing test coverage
+        id: annotate
+        if: matrix.go-version == env.COV_GO_VERSION && github.event.pull_request.base.sha != ''
+        run: |
+          git fetch origin master ${{ github.event.pull_request.base.sha }}
+          curl -sLO https://github.com/vearutop/gocovdiff/releases/download/v1.0.0/linux_amd64.tar.gz && tar xf linux_amd64.tar.gz && echo "6b8bec07488b84e46c1b8993353323effe863493013309fd3df4f2cba9a2bb29  gocovdiff" | shasum -c
+          REP=$(./gocovdiff -cov unit.coverprofile -gha-annotations gha-integration.txt)
+          echo "${REP}"
+          REP="${REP//$'\n'/%0A}"
+          cat gha-integration.txt
+          echo "::set-output name=rep::$REP"
       - name: Comment Test Coverage
+        if: matrix.go-version == env.COV_GO_VERSION && github.event.pull_request.base.sha != ''
         continue-on-error: true
         uses: marocchino/sticky-pull-request-comment@v2
         with:
@@ -94,11 +79,10 @@ jobs:
           message: |
             ### Integration Test Coverage
             ${{ steps.test.outputs.total }}
-            <details><summary>Coverage diff with base branch</summary>
+            <details><summary>Coverage of changed lines</summary>
+            
+            ${{ steps.annotate.outputs.rep }}
 
-            ```diff
-            ${{ steps.test.outputs.diff }}
-            ```
             </details>
 
       - name: Upload code coverage
