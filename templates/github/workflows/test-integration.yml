@@ -14,8 +14,10 @@ concurrency:
 
 env:
   GO111MODULE: "on"
+  RUN_BASE_COVERAGE: "on"  # Runs test for PR base in case base test coverage is missing.
   DOCKER_COMPOSE_FILE: ./docker-compose.yml
   GO_VERSION: 1.18.x
+  TARGET_DELTA_COV: 90     # Target coverage of changed lines, in percents
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -34,8 +36,10 @@ jobs:
           tar -C ~/sdk/gotip -xzf gotip.tar.gz
           ~/sdk/gotip/bin/go version
           echo "PATH=$HOME/go/bin:$HOME/sdk/gotip/bin/:$PATH" >> $GITHUB_ENV
+
       - name: Checkout code
         uses: actions/checkout@v2
+
       - name: Go cache
         uses: actions/cache@v2
         with:
@@ -48,30 +52,60 @@ jobs:
           key: ${{ runner.os }}-go-cache-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-cache
+
+      - name: Restore base test coverage
+        id: base-coverage
+        uses: actions/cache@v2
+        with:
+          path: |
+            integration-base.txt
+          # Use base sha for PR or new commit hash for master/main push in test result key.
+          key: ${{ runner.os }}-integration-test-base-coverage-${{ (github.event.pull_request.base.sha != github.event.after) && github.event.pull_request.base.sha || github.event.after }}
+
+      - name: Checkout base code
+        if: env.RUN_BASE_COVERAGE == 'on' && steps.base-coverage.outputs.cache-hit != 'true' && github.event.pull_request.base.sha != ''
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: __base
       - name: Docker Compose
         run: (test -f ${{ env.DOCKER_COMPOSE_FILE }} && docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} up -d && docker ps && docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} logs) || echo "::warning ::Missing ${{ env.DOCKER_COMPOSE_FILE }} file"
+      - name: Run test for base code
+        if: env.RUN_BASE_COVERAGE == 'on' && steps.base-coverage.outputs.cache-hit != 'true' && github.event.pull_request.base.sha != ''
+        run: |
+          cd __base
+          make | grep test-integration && (make test-integration && go tool cover -func=./integration.coverprofile > ../integration-base.txt) || echo "No test-integration in base"
+
       - name: Test
         id: test
         run: |
           make test-integration
-          go tool cover -func=./integration.coverprofile | sed -e 's/.go:[0-9]*:\t/.go\t/g' | sed -e 's/\t\t*/\t/g'  > integration.txt
+          go tool cover -func=./integration.coverprofile > integration.txt
           TOTAL=$(grep 'total:' integration.txt)
           echo "${TOTAL}"
           echo "::set-output name=total::$TOTAL"
+
       - name: Annotate missing test coverage
         id: annotate
-        if: matrix.go-version == env.COV_GO_VERSION && github.event.pull_request.base.sha != ''
+        if: github.event.pull_request.base.sha != ''
         run: |
           git fetch origin master ${{ github.event.pull_request.base.sha }}
-          curl -sLO https://github.com/vearutop/gocovdiff/releases/download/v1.0.0/linux_amd64.tar.gz && tar xf linux_amd64.tar.gz && echo "6b8bec07488b84e46c1b8993353323effe863493013309fd3df4f2cba9a2bb29  gocovdiff" | shasum -c
-          REP=$(./gocovdiff -cov unit.coverprofile -gha-annotations gha-integration.txt)
+          curl -sLO https://github.com/vearutop/gocovdiff/releases/download/v1.3.2/linux_amd64.tar.gz && tar xf linux_amd64.tar.gz && echo "78146b31ec37ac8037a25d33b0f3c70c85adb0f8b682441b04b3daa518eaa489  gocovdiff" | shasum -c
+          REP=$(./gocovdiff -cov integration.coverprofile -gha-annotations gha-integration.txt -delta-cov-file delta-cov-integration.txt -target-delta-cov ${TARGET_DELTA_COV})
           echo "${REP}"
           REP="${REP//$'\n'/%0A}"
           cat gha-integration.txt
+          test -e integration-base.txt && cat integration-base.txt
+          DIFF=$(test -e integration-base.txt && ./gocovdiff -func-cov integration.txt -func-base-cov integration-base.txt || echo "Missing base coverage file")
+          DIFF="${DIFF//$'\n'/%0A}"
+          TOTAL=$(cat delta-cov-integration.txt)
           echo "::set-output name=rep::$REP"
+          echo "::set-output name=diff::$DIFF"
+          echo "::set-output name=total::$TOTAL"
+
       - name: Comment Test Coverage
-        if: matrix.go-version == env.COV_GO_VERSION && github.event.pull_request.base.sha != ''
         continue-on-error: true
+        if: github.event.pull_request.base.sha != ''
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -79,11 +113,22 @@ jobs:
           message: |
             ### Integration Test Coverage
             ${{ steps.test.outputs.total }}
+            ${{ steps.annotate.outputs.total }}
             <details><summary>Coverage of changed lines</summary>
             
             ${{ steps.annotate.outputs.rep }}
 
             </details>
+
+            <details><summary>Coverage diff with base branch</summary>
+
+            ${{ steps.annotate.outputs.diff }}
+            
+            </details>
+
+      - name: Store base coverage
+        if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
+        run: cp integration.txt integration-base.txt
 
       - name: Upload code coverage
         uses: codecov/codecov-action@v1
