@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"runtime"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestInformation_String(t *testing.T) {
@@ -15,7 +13,7 @@ func TestInformation_String(t *testing.T) {
 	buildDate = ""
 	buildUser = ""
 
-	assert.Equal(t, "Version: v3.2.1, GoVersion: "+runtime.Version(), Info().String())
+	equal(t, "Version: v3.2.1, GoVersion: "+runtime.Version(), Info().String())
 
 	version = "v1.2.3"
 	branch = "refs/heads/master"
@@ -23,8 +21,11 @@ func TestInformation_String(t *testing.T) {
 	buildUser = "user"
 	buildDate = "2021-01-13 22:13:41"
 
-	assert.Equal(t, fmt.Sprintf("Version: %s, Revision: %s, Branch: %s, BuildUser: %s, BuildDate: %s, GoVersion: %s",
-		version, revision, branch, buildUser, buildDate, runtime.Version()), Info().String())
+	expected := fmt.Sprintf("Version: %s, Revision: %s, Branch: %s, BuildUser: %s, BuildDate: %s, GoVersion: %s",
+		version, revision, branch, buildUser, buildDate, runtime.Version())
+	received := Info().String()
+
+	equal(t, expected, received)
 }
 
 func TestInformation_Values(t *testing.T) {
@@ -34,10 +35,10 @@ func TestInformation_Values(t *testing.T) {
 	buildDate = ""
 	buildUser = ""
 
-	assert.Equal(t, map[string]string{
+	equal(t, fmt.Sprintf("%v", map[string]string{
 		"branch": "", "build_date": "", "build_user": "", "go_version": runtime.Version(),
 		"revision": "", "version": "v3.2.1",
-	}, Info().Values())
+	}), fmt.Sprintf("%v", Info().Values()))
 
 	version = "v1.2.3"
 	branch = "refs/heads/master"
@@ -45,8 +46,25 @@ func TestInformation_Values(t *testing.T) {
 	buildDate = "2021-01-13 22:13:41"
 	buildUser = "user"
 
-	assert.Equal(t, map[string]string{
+	equal(t, fmt.Sprintf("%v", map[string]string{
 		"branch": branch, "build_date": buildDate, "build_user": buildUser,
 		"go_version": runtime.Version(), "revision": revision, "version": version,
-	}, Info().Values())
+	}), fmt.Sprintf("%v", Info().Values()))
+
+	expected := fmt.Sprintf("%v", map[string]string{
+		"branch": branch, "build_date": buildDate, "build_user": buildUser,
+		"go_version": runtime.Version(), "revision": revision, "version": version,
+	})
+
+	received := fmt.Sprintf("%v", Info().Values())
+
+	equal(t, expected, received)
+}
+
+func equal(t *testing.T, expected, received string) {
+	t.Helper()
+
+	if expected != received {
+		t.Fatalf("%q is expected, %s received", expected, received)
+	}
 }
