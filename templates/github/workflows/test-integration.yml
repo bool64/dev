@@ -16,7 +16,7 @@ env:
   GO111MODULE: "on"
   RUN_BASE_COVERAGE: "on"  # Runs test for PR base in case base test coverage is missing.
   DOCKER_COMPOSE_FILE: ./docker-compose.yml
-  GO_VERSION: 1.18.x
+  GO_VERSION: 1.19.x
   TARGET_DELTA_COV: 90     # Target coverage of changed lines, in percents
 jobs:
   test:
