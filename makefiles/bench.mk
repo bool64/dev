@@ -1,5 +1,5 @@
 GO ?= go
-BENCH_COUNT ?= 5
+BENCH_COUNT ?= 6
 MASTER_BRANCH ?= master
 REF_NAME ?= $(shell git symbolic-ref -q --short HEAD || git describe --tags --exact-match)
 SHELL := /bin/bash
