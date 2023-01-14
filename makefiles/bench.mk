@@ -1,5 +1,5 @@
 GO ?= go
-BENCH_COUNT ?= 5
+BENCH_COUNT ?= 6
 MASTER_BRANCH ?= master
 REF_NAME ?= $(shell git symbolic-ref -q --short HEAD || git describe --tags --exact-match)
 SHELL := /bin/bash
@@ -8,7 +8,7 @@ SHELL := /bin/bash
 bench: bench-run bench-stat-diff bench-stat
 
 bench-stat-cli:
-	@test -s $(GOPATH)/bin/benchstat || GOFLAGS= GOBIN=$(GOPATH)/bin $(GO) install golang.org/x/perf/cmd/benchstat@latest
+	@test -s $(GOPATH)/bin/benchstat || GOFLAGS= GOBIN=$(GOPATH)/bin $(GO) install golang.org/x/perf/cmd/benchstat@a1b99499bab64a73929f3ed7c2103c28d30e9ac2
 
 ## Run benchmark, iterations count controlled by BENCH_COUNT, default 5.
 bench-run:
