@@ -79,7 +79,7 @@ jobs:
           go tool cover -func=./integration.coverprofile > integration.txt
           TOTAL=$(grep 'total:' integration.txt)
           echo "${TOTAL}"
-          echo "::set-output name=total::$TOTAL"
+          echo "total<<EOF" >> $GITHUB_OUTPUT && echo "$TOTAL" >> $GITHUB_OUTPUT && echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Annotate missing test coverage
         id: annotate
@@ -91,14 +91,12 @@ jobs:
           git fetch origin master ${{ github.event.pull_request.base.sha }}
           REP=$(./gocovdiff -cov integration.coverprofile -gha-annotations gha-integration.txt -delta-cov-file delta-cov-integration.txt -target-delta-cov ${TARGET_DELTA_COV})
           echo "${REP}"
-          REP="${REP//$'\n'/%0A}"
           cat gha-integration.txt
           DIFF=$(test -e integration-base.txt && ./gocovdiff -func-cov integration.txt -func-base-cov integration-base.txt || echo "Missing base coverage file")
-          DIFF="${DIFF//$'\n'/%0A}"
           TOTAL=$(cat delta-cov-integration.txt)
-          echo "::set-output name=rep::$REP"
-          echo "::set-output name=diff::$DIFF"
-          echo "::set-output name=total::$TOTAL"
+          echo "rep<<EOF" >> $GITHUB_OUTPUT && echo "$REP" >> $GITHUB_OUTPUT && echo "EOF" >> $GITHUB_OUTPUT
+          echo "diff<<EOF" >> $GITHUB_OUTPUT && echo "$DIFF" >> $GITHUB_OUTPUT && echo "EOF" >> $GITHUB_OUTPUT
+          echo "total<<EOF" >> $GITHUB_OUTPUT && echo "$TOTAL" >> $GITHUB_OUTPUT && echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Comment Test Coverage
         continue-on-error: true
