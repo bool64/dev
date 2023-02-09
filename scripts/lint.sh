@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 [ -z "$GO" ] && GO=go
-[ -z "$GOLANGCI_LINT_VERSION" ] && GOLANGCI_LINT_VERSION="v1.50.1"
+[ -z "$GOLANGCI_LINT_VERSION" ] && GOLANGCI_LINT_VERSION="v1.51.1"
 
 # detecting GOPATH and removing trailing "/" if any
 GOPATH="$(go env GOPATH)"
