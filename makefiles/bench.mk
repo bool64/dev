@@ -4,6 +4,9 @@ MASTER_BRANCH ?= master
 REF_NAME ?= $(shell git symbolic-ref -q --short HEAD || git describe --tags --exact-match)
 SHELL := /bin/bash
 
+# Override in app Makefile to add custom build flags, example BUILD_FLAGS=-trimpath -pgo=auto
+BUILD_FLAGS ?= -trimpath
+
 ## Run benchmark and show result stats, iterations count controlled by BENCH_COUNT, default 5.
 bench: bench-run bench-stat-diff bench-stat
 
@@ -12,7 +15,7 @@ bench-stat-cli:
 
 ## Run benchmark, iterations count controlled by BENCH_COUNT, default 5.
 bench-run:
-	@set -o pipefail && $(GO) test -bench=. -count=$(BENCH_COUNT) -run=^a  ./... | tee bench-$(REF_NAME).txt
+	@set -o pipefail && $(GO) $(BUILD_FLAGS) test -bench=. -count=$(BENCH_COUNT) -run=^a  ./... | tee bench-$(REF_NAME).txt
 
 ## Show benchmark comparison with base branch.
 bench-stat-diff: bench-stat-cli

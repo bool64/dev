@@ -2,6 +2,10 @@ GO ?= go
 
 # Override in app Makefile to add custom ldflags, example BUILD_LDFLAGS="-s -w"
 BUILD_LDFLAGS ?= ""
+
+# Override in app Makefile to add custom build flags, example BUILD_FLAGS=-trimpath -pgo=auto
+BUILD_FLAGS ?= -trimpath
+
 INTEGRATION_TEST_TARGET ?= -coverpkg ./internal/... integration_test.go
 INTEGRATION_DOCKER_COMPOSE ?= ./docker-compose.yml
 
@@ -9,7 +13,7 @@ INTEGRATION_DOCKER_COMPOSE ?= ./docker-compose.yml
 test-integration:
 	@make start-deps
 	@echo "Running integration tests."
-	@CGO_ENABLED=1 $(GO) test -ldflags "$(shell bash $(DEVGO_SCRIPTS)/version-ldflags.sh && echo $(BUILD_LDFLAGS))" -race -cover -coverprofile ./integration.coverprofile $(INTEGRATION_TEST_TARGET)
+	@CGO_ENABLED=1 $(GO) test $(BUILD_FLAGS) -ldflags "$(shell bash $(DEVGO_SCRIPTS)/version-ldflags.sh && echo $(BUILD_LDFLAGS))" -race -cover -coverprofile ./integration.coverprofile $(INTEGRATION_TEST_TARGET)
 
 ## Start dependencies for integration tests or local dev via docker-compose up
 start-deps:
