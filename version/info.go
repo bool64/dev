@@ -12,6 +12,7 @@ var (
 	buildUser    string
 	buildDate    string
 	dependencies map[string]string
+	main         string
 )
 
 // Information holds app version info.
@@ -36,6 +37,20 @@ func Info() Information {
 		GoVersion:    runtime.Version(),
 		Dependencies: dependencies,
 	}
+}
+
+// Module returns module version info.
+func Module(path string) Information {
+	info := Info()
+
+	if main == path {
+		return info
+	}
+
+	ver := dependencies[path]
+	info.Version = ver
+
+	return info
 }
 
 // String return version information as string.

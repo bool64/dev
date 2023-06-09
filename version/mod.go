@@ -18,6 +18,8 @@ func init() {
 			buildDate = "(unknown)"
 		}
 
+		main = info.Main.Path
+
 		dependencies = make(map[string]string, len(info.Deps))
 		for _, dep := range info.Deps {
 			dependencies[dep.Path] = dep.Version
