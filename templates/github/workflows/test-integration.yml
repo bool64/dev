@@ -85,9 +85,9 @@ jobs:
         id: annotate
         if: github.event.pull_request.base.sha != ''
         run: |
-          curl -sLO https://github.com/vearutop/gocovdiff/releases/download/v1.4.0/linux_amd64.tar.gz && tar xf linux_amd64.tar.gz
+          curl -sLO https://github.com/vearutop/gocovdiff/releases/download/v1.4.2/linux_amd64.tar.gz && tar xf linux_amd64.tar.gz && rm linux_amd64.tar.gz
           gocovdiff_hash=$(git hash-object ./gocovdiff)
-          [ "$gocovdiff_hash" == "8e507e0d671d4d6dfb3612309b72b163492f28eb" ] || (echo "::error::unexpected hash for gocovdiff, possible tampering: $gocovdiff_hash" && exit 1)
+          [ "$gocovdiff_hash" == "c37862c73a677e5a9c069470287823ab5bbf0244" ] || (echo "::error::unexpected hash for gocovdiff, possible tampering: $gocovdiff_hash" && exit 1)
           git fetch origin master ${{ github.event.pull_request.base.sha }}
           REP=$(./gocovdiff -cov integration.coverprofile -gha-annotations gha-integration.txt -delta-cov-file delta-cov-integration.txt -target-delta-cov ${TARGET_DELTA_COV})
           echo "${REP}"
