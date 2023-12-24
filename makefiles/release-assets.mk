@@ -9,8 +9,6 @@ BUILD_PKG ?= .
 # Override in app Makefile to control build artifact destination.
 BUILD_DIR ?= ./bin
 
-export CGO_ENABLED ?= 0
-
 RELEASE_TARGETS ?= "darwin/amd64 darwin/arm64 linux/amd64 linux/arm64 linux/arm32 windows/amd64"
 
 ## Build and compress binaries for release assets.
