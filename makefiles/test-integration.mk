@@ -13,10 +13,10 @@ test-integration:
 
 ## Start dependencies for integration tests or local dev via docker-compose up
 start-deps:
-	@test ! -f $(INTEGRATION_DOCKER_COMPOSE) || docker-compose -p "$(shell basename $$PWD)" -f $(INTEGRATION_DOCKER_COMPOSE) up -d
+	test ! -f $(INTEGRATION_DOCKER_COMPOSE) || (command -v docker-compose >/dev/null 2>&1 && docker-compose -p "$(shell basename $$PWD)" -f $(INTEGRATION_DOCKER_COMPOSE) up -d || docker compose -p "$(shell basename $$PWD)" -f $(INTEGRATION_DOCKER_COMPOSE) up -d)
 
 ## Stop dependencies for integration tests or local dev via docker-compose down
 stop-deps:
-	@test ! -f $(INTEGRATION_DOCKER_COMPOSE) || docker-compose -p "$(shell basename $$PWD)" -f $(INTEGRATION_DOCKER_COMPOSE) down
+	@test ! -f $(INTEGRATION_DOCKER_COMPOSE) || (command -v docker-compose >/dev/null 2>&1 && docker-compose -p "$(shell basename $$PWD)" -f $(INTEGRATION_DOCKER_COMPOSE) down || docker compose -p "$(shell basename $$PWD)" -f $(INTEGRATION_DOCKER_COMPOSE) down)
 
 .PHONY: test-integration start-deps stop-deps
