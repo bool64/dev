@@ -1,0 +1,13 @@
+Module github.com/bool64/dev not found, downloading.
+Usage
+  [32mtest:               [0m  Run tests
+  [32mlint:               [0m  Check with golangci-lint
+  [32mfix-lint:           [0m  Apply goimports and gofmt
+  [32mtest-unit:          [0m  Run unit tests
+  [32mtest-unit-multi:    [0m  Run unit tests multiple times, use `UNIT_TEST_COUNT=10 make test-unit-multi` to control count
+  [32mbench:              [0m  Run benchmark and show result stats, iterations count controlled by BENCH_COUNT, default 5.
+  [32mbench-run:          [0m  Run benchmark, iterations count controlled by BENCH_COUNT, default 5.
+  [32mbench-stat-diff:    [0m  Show benchmark comparison with base branch.
+  [32mbench-stat:         [0m  Show result of benchmark.
+  [32mreset-ci:           [0m  Reset CI files from bool64/dev templates, make sure to review changes before committing.
+  [32mgithub-actions:     [0m  Replace GitHub Actions from template

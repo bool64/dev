@@ -1,0 +1,41 @@
+# This code is provided by github.com/bool64/dev.
+name: test
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+# Cancel the workflow in progress in newer build is about to start.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+jobs:
+  test:
+    strategy:
+      matrix:
+        go-version: [1.17.x]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Go stable
+        if: matrix.go-version != 'tip'
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Go cache
+        uses: actions/cache@v3
+        with:
+          # In order:
+          # * Module download cache
+          # * Build cache (Linux)
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-cache-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-cache
+      - name: Test
+        id: test
+        run: |
+          make test

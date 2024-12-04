@@ -4,7 +4,8 @@
 MODULES := \
 	DEVGO_PATH=github.com/bool64/dev
 
-# The head of Makefile determines location of dev-go to include standard targets.
+
+# The head of Makefile determines the location of dev-go to include standard targets.
 GO ?= go
 export GO111MODULE = on
 
