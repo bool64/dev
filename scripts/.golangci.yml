@@ -22,7 +22,6 @@ linters:
   disable:
     - lll
     - gochecknoglobals
-    - gomnd
     - wrapcheck
     - paralleltest
     - forbidigo
@@ -40,12 +39,12 @@ linters:
     - execinquery
     - mnd
     - testifylint
+    - recvcheck
 
 issues:
   exclude-use-default: false
   exclude-rules:
     - linters:
-        - gomnd
         - mnd
         - goconst
         - noctx
