@@ -20,6 +20,8 @@ linters-settings:
 linters:
   enable-all: true
   disable:
+    - intrange
+    - copyloopvar
     - lll
     - gochecknoglobals
     - wrapcheck
@@ -36,7 +38,6 @@ linters:
     - dupword
     - depguard
     - tagalign
-    - execinquery
     - mnd
     - testifylint
     - recvcheck

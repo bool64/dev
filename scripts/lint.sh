@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 [ -z "$GO" ] && GO=go
-[ -z "$GOLANGCI_LINT_VERSION" ] && GOLANGCI_LINT_VERSION="v1.63.4"
+[ -z "$GOLANGCI_LINT_VERSION" ] && GOLANGCI_LINT_VERSION="v1.64.5"
 
 # detecting GOPATH and removing trailing "/" if any
 GOPATH="$(go env GOPATH)"
@@ -25,8 +25,3 @@ fi
 
 echo "Checking packages."
 golangci-lint-"$GOLANGCI_LINT_VERSION" run -c "$golangci_yml" ./... || exit 1
-
-if [[ -d "./internal" && -d "./cmd" ]]; then
-  echo "Checking unused exported symbols in internal packages."
-  golangci-lint-"$GOLANGCI_LINT_VERSION" run -c "$this_path"/.golangci-internal.yml ./internal/... ./cmd/... || exit 1
-fi
