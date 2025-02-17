@@ -12,14 +12,14 @@ linters-settings:
     threshold: 100
   misspell:
     locale: US
-  unused:
-    check-exported: false
   unparam:
     check-exported: true
 
 linters:
   enable-all: true
   disable:
+    - intrange
+    - copyloopvar
     - lll
     - gochecknoglobals
     - wrapcheck
@@ -36,7 +36,6 @@ linters:
     - dupword
     - depguard
     - tagalign
-    - execinquery
     - mnd
     - testifylint
     - recvcheck
@@ -50,7 +49,6 @@ issues:
         - noctx
         - funlen
         - dupl
-        - structcheck
         - unused
         - unparam
       path: "_test.go"
