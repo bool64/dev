@@ -5,6 +5,8 @@ run:
 linters:
   default: all
   disable:
+    - embeddedstructfieldcheck
+    - nilnil
     - noinlineerr
     - wsl_v5
     - funcorder
