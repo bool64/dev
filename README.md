@@ -28,6 +28,10 @@ Add `Makefile` to your module with includes standard targets.
 ```Makefile
 #GOLANGCI_LINT_VERSION := "v2.5.0" # Optional configuration to pinpoint golangci-lint version.
 
+# MODULES is a list of dev modules (mk) to be included in the project.
+MODULES := \
+	DEVGO_PATH=github.com/bool64/dev
+
 # The head of Makefile determines location of dev-go to include standard targets.
 GO ?= go
 export GO111MODULE = on
@@ -36,24 +40,31 @@ ifneq "$(GOFLAGS)" ""
   $(info GOFLAGS: ${GOFLAGS})
 endif
 
-ifneq "$(wildcard ./vendor )" ""
-  $(info Using vendor)
-  modVendor =  -mod=vendor
+# Use vendored dependencies if available.
+ifneq ($(wildcard ./vendor),)
+  modVendor := -mod=vendor
   ifeq (,$(findstring -mod,$(GOFLAGS)))
       export GOFLAGS := ${GOFLAGS} ${modVendor}
   endif
-  ifneq "$(wildcard ./vendor/github.com/bool64/dev)" ""
-  	DEVGO_PATH := ./vendor/github.com/bool64/dev
-  endif
 endif
 
-ifeq ($(DEVGO_PATH),)
-	DEVGO_PATH := $(shell GO111MODULE=on $(GO) list ${modVendor} -f '{{.Dir}}' -m github.com/bool64/dev)
-	ifeq ($(DEVGO_PATH),)
-    	$(info Module github.com/bool64/dev not found, downloading.)
-    	DEVGO_PATH := $(shell export GO111MODULE=on && $(GO) get github.com/bool64/dev && $(GO) list -f '{{.Dir}}' -m github.com/bool64/dev)
-	endif
-endif
+# Set dev module paths or download them.
+$(foreach module,$(MODULES), \
+	$(eval key=$(word 1,$(subst =, ,$(module)))); \
+	$(eval value=$(word 2,$(subst =, ,$(module)))); \
+	\
+	$(if $(wildcard ./vendor/$(value)), \
+		$(eval export $(key)=./vendor/$(value)); \
+	) \
+	\
+	$(if $(strip $($(key))), , \
+    	$(eval export $(key)=$(shell GO111MODULE=on $(GO) list ${modVendor} -f '{{.Dir}}' -m $(value))); \
+		$(if $(strip $($(key))), \
+			$(info Module $(value) not found, downloading.); \
+			$(eval export $(key)=$(shell export GO111MODULE=on && $(GO) get $(value) && $(GO) list -f '{{.Dir}}' -m $(value))); \
+		) \
+    ) \
+)
 
 -include $(DEVGO_PATH)/makefiles/main.mk
 -include $(DEVGO_PATH)/makefiles/lint.mk
@@ -87,3 +98,71 @@ Usage
 You can include `$(DEVGO_PATH)/makefiles/build.mk` to add automated versioning of build artifacts. Make will
 configure `ldflags` to set up [version info](./version/info.go), then you can access it in runtime with `version.Info()`
 or expose with [HTTP handler](./version/handler.go). Version information also includes versions of dependencies.
+
+## Create Plugins
+
+You can add plugins for your project and include them in the Makefile. For example, you can add a plugin 
+to run `protoc` targets which is place it in `github/<owner>/<repo>/makefiles/protoc.mk`. 
+
+Then include it in the Makefile:
+
+```Makefile
+# MODULES is a list of dev modules (mk) to be included in the project.
+MODULES := \
+	DEVGO_PATH=github.com/bool64/dev \
+	DEVGRPCGO_PATH=github/<owner>/<repo>/makefiles/protoc.mk
+
+  ...	
+	
+-include $(DEVGO_PATH)/makefiles/bench.mk
+-include $(DEVGO_PATH)/makefiles/reset-ci.mk
+
+-include $(DEVGRPCGO_PATH)/makefiles/protoc.mk
+```
+
+Then add `github/<owner>/<repo>` to your module with unused import defined in `dev_test.go`:
+
+```go
+package mymodule_test
+
+import (
+    _ "github.com/bool64/dev" // Include development helpers to project.
+    _ "github.com/<owner>/<repo>" // Include custom plugins to project.
+)
+```
+
+`DEVGRPCGO_PATH` is a path to the plugin module. It will be the path to the remote repository. 
+
+### Plugin Structure
+
+The plugin should have the following structure:
+
+```makefile
+GO ?= go
+
+PWD ?= $(shell pwd)
+
+DEVGRPCGO_PATH ?= $(PWD)/vendor/github.com/<owner>/<repo>
+DEVGRPCGO_SCRIPTS ?= $(DEVGRPCGO_PATH)/scripts # In case there is a scripts directory.
+
+## Check/install protoc tool
+protoc-cli:
+	@bash $(DEVGRPC_SCRIPTS)/protoc-gen-cli.sh
+
+
+.PHONY: protoc-cli
+```
+
+Then `make` will have these targets:
+
+```
+Usage
+  test:                 Run tests
+  test-unit:            Run unit tests
+  test-unit-multi:      Run unit tests multiple times
+  lint:                 Check with golangci-lint
+  fix-lint:             Apply goimports and gofmt
+  bench:                Run benchmark, iterations count controlled by BENCH_COUNT, default 5.
+  github-actions:       Replace GitHub Actions from template
+  protoc-cli:           Check/install protoc tool
+```

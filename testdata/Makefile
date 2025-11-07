@@ -1,10 +1,11 @@
-#GOLANGCI_LINT_VERSION := "v2.5.0" # Optional configuration to pinpoint golangci-lint version.
+#GOLANGCI_LINT_VERSION := "v1.61.0" # Optional configuration to pinpoint golangci-lint version.
 
 # MODULES is a list of dev modules (mk) to be included in the project.
 MODULES := \
 	DEVGO_PATH=github.com/bool64/dev
 
-# The head of Makefile determines location of dev-go to include standard targets.
+
+# The head of Makefile determines the location of dev-go to include standard targets.
 GO ?= go
 export GO111MODULE = on
 
